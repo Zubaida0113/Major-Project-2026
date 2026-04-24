@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicVoice AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header/Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark px-3" style="background: #161b22 !important; min-height: 70px;">
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <span class="badge-resident-portal me-3">
+                    <span class="dot"></span>
+                    <span class="text">RESIDENT PORTAL</span>
+                </span>
+                <a class="navbar-brand d-flex align-items-center fw-bold" href="#">
+                    <img src="https://img.icons8.com/ios-filled/50/ffffff/microphone.png" alt="Logo" width="32" height="32" class="me-2">
+                    CivicVoice AI
+                </a>
+            </div>
+            <button class="btn btn-dark" id="toggleTheme" title="Toggle light/dark mode">🌙</button>
+        </div>
+    </nav>
+    <div class="container vh-100 d-flex align-items-center" style="min-height: 80vh;">
+        <div class="row w-100">
+            <!-- Left Section -->
+            <div class="col-md-7 d-flex flex-column justify-content-center">
+                <h1 class="display-4 fw-bold mt-2">SPEAK YOUR <span class="text-primary">CIVIC CONCERNS.</span></h1>
+                <p class="lead mb-4">The voice-based AI platform for RWAs and local governance. Report issues simply by speaking. We handle the translation, routing, and tracking.</p>
+                <div class="mb-2 d-flex align-items-center">
+                    <span class="me-2"><i class="bi bi-mic-fill"></i></span>
+                    <div>
+                        <strong>Voice-First Submission</strong><br>
+                        <small>No typing required. Speak naturally in your preferred language, and AI converts it to structured data.</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-2"><i class="bi bi-shield-lock-fill"></i></span>
+                    <div>
+                        <strong>Trust & Priority Scoring</strong><br>
+                        <small>Automated triage assigns priority and trust scores to ensure urgent community issues are addressed first.</small>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Section -->
+            <div class="col-md-5 d-flex flex-column justify-content-center align-items-center">
+                <div class="custom-card p-4 w-100" style="max-width: 370px;">
+                    <h4 class="mb-3">Ready to report an issue?</h4>
+                    <p class="text-muted">Tap the microphone on the next screen to start speaking.</p>
+                    <button class="btn btn-primary w-100 mb-2" id="startSubmission">Start Submission &rarr;</button>
+                    <div class="text-center my-2">OR</div>
+                    <input class="form-control mb-3" id="complaintInput" placeholder="Type your complaint instead">
+                    <button class="btn btn-outline-secondary w-100 mb-3" id="submitComplaint">Submit Complaint</button>
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-secondary">SECURE</span>
+                        <span class="badge bg-info text-dark">FAST</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
