@@ -31,5 +31,5 @@ toggleThemeBtn.addEventListener('click', () => {
 
 // Start Submission button (placeholder)
 document.getElementById('startSubmission').addEventListener('click', () => {
-    alert('Voice submission coming soon!');
+    window.location.href = 'signup.html';
 });
