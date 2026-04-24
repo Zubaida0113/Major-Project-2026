@@ -163,7 +163,6 @@
                 </div>
                 <!-- Recording Interface (hidden initially) -->
                 <div id="activeRecording" class="dashboard-card text-center p-4" style="display:none;">
-                    <button id="backBtn" class="btn btn-secondary mb-3">⬅ Back</button>
                     <h3 class="fw-bold">Recording Complaint</h3>
                     <p>Speak naturally. Our AI will handle the rest.</p>
 
@@ -181,14 +180,24 @@
                             <li>Be specific: mention landmarks, dates, and details.</li>
                             <li>Supports only English for now.</li>
                         </ul>
-                    </div>
+                    </div><button id="submitBtn" class="btn btn-success mt-3" style="display:none;">Submit Complaint
+                        🚀</button>
                 </div>
-                
+<div id="summarySection" style="display:none;">
+                PASTE YOUR FULL SUMMARY UI HERE
             </div>
+            </div>
+        <div id="processingOverlay" style="display:none;">
+    <div class="processing-box text-center">
+        <div class="spinner-border text-light mb-3"></div>
+        <h4>Processing Complaint...</h4>
+        <p>AI Triage score is being generated.<br>Please wait.</p>
+    </div>
+</div>   
         </div>
     </div>
 
-
+    
     <script>
 
         // Personalize greeting using localStorage data from signup
@@ -242,118 +251,158 @@
             return `${m}:${s}`;
         }
 
-       
-       
+
+
 
         let mediaRecorder;
         let audioChunks = [];
 
-  
-async function startRecording() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.ondataavailable = event => {
-      audioChunks.push(event.data);
-    };
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.onstop = () => {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-      audioChunks = [];
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
 
-      const audioUrl = URL.createObjectURL(audioBlob);
-      localStorage.setItem('latestComplaintAudio', audioUrl);
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    audioChunks = [];
 
-      const playbackDiv = document.createElement('div');
-      playbackDiv.className = "mt-3";
-      playbackDiv.innerHTML = `
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    localStorage.setItem('latestComplaintAudio', audioUrl);
+
+                    const playbackDiv = document.createElement('div');
+                    playbackDiv.className = "mt-3";
+                    playbackDiv.innerHTML = `
         <h5>Review Your Recording</h5>
         <audio controls src="${audioUrl}"></audio>
       `;
-      activeRecording.appendChild(playbackDiv);
+                    activeRecording.appendChild(playbackDiv);
+                    // ✅ SHOW SUBMIT BUTTON
+                    document.getElementById('submitBtn').style.display = 'inline-block';
+                    // store blob globally for submission
+                    window.latestAudioBlob = audioBlob;
+                    console.log("Audio captured and ready for playback:", audioUrl);
+                };
 
-      console.log("Audio captured and ready for playback:", audioUrl);
-    };
+                mediaRecorder.start();
+                console.log("Recording started with MediaRecorder.");
+            } catch (err) {
+                console.error("Microphone access denied or error:", err);
+            }
+        }
 
-    mediaRecorder.start();
-    console.log("Recording started with MediaRecorder.");
-  } catch (err) {
-    console.error("Microphone access denied or error:", err);
-  }
-}
+        // Start button
+        recordBtn.addEventListener('click', () => {
+            dashboardCard.style.display = 'none';
+            recordingCard.style.display = 'none';
+            statsSection.style.display = 'none';
+            recentActivitySection.style.display = 'none';
+            activeRecording.style.display = 'block';
+        });
+        startBtn.addEventListener('click', () => {
+            seconds = 0;
+            timerEl.textContent = "00:00";
 
-// Start button
-recordBtn.addEventListener('click', () => {
-  dashboardCard.style.display = 'none';
-  recordingCard.style.display = 'none';
-  statsSection.style.display = 'none';
-  recentActivitySection.style.display = 'none';
-  activeRecording.style.display = 'block';
-});
-startBtn.addEventListener('click', () => {
-  seconds = 0;
-  timerEl.textContent = "00:00";
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    seconds++;
+                    timerEl.textContent = formatTime(seconds);
+                }
+            }, 1000);
 
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    if (!isPaused) {
-      seconds++;
-      timerEl.textContent = formatTime(seconds);
+            startRecording();
+        });
+        // Stop button
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop(); // recording ends only here
+            }
+            console.log("Recording stopped.");
+        });
+
+        // Pause button
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            isPaused = true;
+            console.log("Recording paused.");
+        });
+
+        // Resume button
+        document.getElementById('resumeBtn').addEventListener('click', () => {
+            isPaused = false;
+            console.log("Recording resumed.");
+        });
+        const processingOverlay = document.getElementById('processingOverlay');
+const summarySection = document.getElementById('summarySection');
+
+// submitBtn.addEventListener('click', () => {
+
+//     // ❗ Only show loader AFTER recording exists
+//     if (!window.latestAudioBlob) {
+//         alert("Please record a complaint first!");
+//         return;
+//     }
+
+//     // ✅ SHOW CENTER POPUP
+//     processingOverlay.style.display = 'flex';
+
+//     // ❌ hide recording UI
+//     activeRecording.style.display = 'none';
+
+//     // ⏳ simulate backend
+//     setTimeout(() => {
+
+//         // hide loader
+//         processingOverlay.style.display = 'none';
+
+//         // show summary screen
+//         summarySection.style.display = 'block';
+
+//     }, 2500);
+
+// });
+submitBtn.addEventListener('click', async () => {
+
+    if (!window.latestAudioBlob) {
+        alert("Please record first!");
+        return;
     }
-  }, 1000);
 
-  startRecording();
-});
-// Stop button
-document.getElementById('stopBtn').addEventListener('click', () => {
-  clearInterval(timerInterval);
-  if (mediaRecorder && mediaRecorder.state !== "inactive") {
-    mediaRecorder.stop(); // recording ends only here
-  }
-  console.log("Recording stopped.");
-});
+    processingOverlay.style.display = 'flex';
 
-// Pause button
-document.getElementById('pauseBtn').addEventListener('click', () => {
-  isPaused = true;
-  console.log("Recording paused.");
-});
+    const formData = new FormData();
+    formData.append("audio", window.latestAudioBlob, "complaint.webm");
+    console.log("Sending audio for analysis...", formData.get("audio"));
 
-// Resume button
-document.getElementById('resumeBtn').addEventListener('click', () => {
-  isPaused = false;
-  console.log("Recording resumed.");
-});
-const backBtn = document.getElementById('backBtn');
+    try {
+        const response = await fetch("http://127.0.0.1:5000/analyze-audio", {
+            method: "POST",
+            body: formData
+        });
 
-backBtn.addEventListener('click', () => {
+        const data = await response.json();
 
-    // 🛑 stop recording if running
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-        mediaRecorder.stop();
+        processingOverlay.style.display = 'none';
+
+        // ✅ SHOW SUMMARY
+        summarySection.style.display = 'block';
+
+        // 🔥 UPDATE UI WITH REAL DATA
+        console.log(data);
+
+    } catch (err) {
+        processingOverlay.style.display = 'none';
+        alert("Error connecting to backend");
+        console.error(err);
     }
-
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-    }
-
-    clearInterval(timerInterval);
-
-    isRecording = false;
-    isPaused = false;
-
-    // 🔁 switch UI back
-    activeRecording.style.display = 'none';
-    dashboardCard.style.display = 'block';
-    statsSection.style.display = 'flex';
-    recentActivitySection.style.display = 'block';
-
 });
-
 
     </script>
-
 
 </body>
 

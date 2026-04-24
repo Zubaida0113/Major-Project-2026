@@ -1,28 +1,36 @@
-from flask import Flask, redirect, render_template, request, jsonify, url_for
+from flask import Flask, request, jsonify
+import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-# Dummy model function (replace with your model logic)
-def predict(data):
-    return {'result': f'You submitted: {data}'}
+# folder to save audio
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route("/analyze-audio", methods=["POST"])
+def analyze_audio():
+    print("🔥 API HIT")
+    try:
+        audio = request.files["audio"]
 
-@app.route('/api/submit', methods=['POST'])
-def api_submit():
-    data = request.json.get('complaint')
-    result = predict(data)
-    return jsonify(result)
+        file_path = os.path.join(UPLOAD_FOLDER, audio.filename)
+        audio.save(file_path)
 
-# @app.route('/')
-# def signup():
-#     return render_template('signup.html')
+        # 🔥 FOR NOW (FAKE MODEL OUTPUT)
+        result = {
+            "transcript": "Water pipe burst near sector 4",
+            "category": "Water Supply",
+            "priority": "Critical",
+            "score": 92
+        }
 
-# @app.route('/resident-dashboard')
-# def dashboard():
-#     return render_template('resident-dashboard.html')
+        return jsonify(result)
 
-if __name__ == '__main__':
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
     app.run(debug=True)
