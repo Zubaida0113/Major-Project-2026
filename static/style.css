@@ -1,3 +1,113 @@
+/* Logo rounded border */
+.logo-img-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #232946;
+    border-radius: 50%;
+    border: 2px solid #232946;
+    overflow: hidden;
+}
+.rounded-logo {
+    border-radius: 50%;
+    background: transparent;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+/* Feature rows styling */
+.feature-row {
+    gap: 1.5rem;
+}
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #181d2a;
+    margin-right: 1.25rem;
+    box-shadow: 0 2px 8px 0 rgba(35, 41, 70, 0.04);
+}
+.feature-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.1rem;
+}
+.feature-desc {
+    color: #a3adc2;
+    font-size: 1.08rem;
+    font-weight: 400;
+    margin-bottom: 0.1rem;
+}
+
+/* Footer styling */
+/* Footer layout and alignment */
+.footer {
+    background: transparent;
+    color: #a3adc2;
+    font-size: 1rem;
+    border-top: 1px solid #232946;
+    margin-top: 2rem;
+    width: 100%;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+.footer .container-fluid {
+    max-width: 100vw;
+    padding-left: 0;
+    padding-right: 0;
+}
+.footer-legal {
+    line-height: 1.6;
+    flex: 1 1 0%;
+    text-align: left;
+    min-width: 0;
+}
+.footer-link {
+    color: #4f8cff;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+.footer-link:hover {
+    color: #a3adc2;
+    text-decoration: underline;
+}
+.footer-links {
+    color: #a3adc2;
+    justify-content: flex-end;
+    flex: 0 0 auto;
+    min-width: 220px;
+    text-align: right;
+}
+.dot-sep {
+    color: #4f8cff;
+    font-size: 1.2em;
+    margin: 0 0.5em;
+    user-select: none;
+}
+@media (max-width: 900px) {
+    .footer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    .footer .container-fluid {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+    .footer-links {
+        justify-content: flex-start;
+        text-align: left;
+        margin-top: 0.5rem;
+    }
+}
 /* Resident Portal Badge */
 .badge-resident-portal {
     display: inline-flex;

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicVoice AI - Verify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .verify-card {
+            background: #181d2a;
+            border-radius: 1.5rem;
+            border: 2px solid #2d3a5a;
+            box-shadow: 0 4px 32px 0 rgba(35, 41, 70, 0.18);
+            padding: 2.5rem 2rem 2rem 2rem;
+            max-width: 420px;
+            margin: 3rem auto 0 auto;
+            color: #fff;
+        }
+        .verify-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .verify-logo .logo-img-wrapper {
+            margin-bottom: 0.5rem;
+        }
+        .otp-input {
+            width: 48px;
+            height: 56px;
+            font-size: 2rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            border: 2px solid #232946;
+            background: #232946;
+            color: #fff;
+            margin-right: 0.5rem;
+            margin-left: 0.5rem;
+        }
+        .otp-input:focus {
+            border-color: #4f8cff;
+            outline: none;
+            background: #232946;
+        }
+        .verify-btn {
+            background: #4f8cff;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .verify-btn:hover {
+            background: #357ae8;
+        }
+        .verify-link { color: #4f8cff; text-decoration: underline; cursor: pointer; }
+        .verify-link:hover { color: #a3adc2; }
+        .verify-footer { color: #a3adc2; font-size: 0.98rem; margin-top: 2.5rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container vh-100 d-flex flex-column align-items-center justify-content-center">
+        <div class="verify-card w-100">
+            <div class="verify-logo">
+                <span class="logo-img-wrapper mb-2">
+                    <img src="/static/mic-dark.png" alt="Logo" width="36" height="36" class="rounded-logo">
+                </span>
+                <h4 class="fw-bold mt-2 mb-0">CivicVoice AI</h4>
+            </div>
+            <div class="text-center mb-3">
+                <div class="mb-2">
+                    <span style="display:inline-block;background:#232946;border-radius:50%;padding:0.7rem 0.9rem 0.7rem 0.9rem;">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24"><rect width="28" height="28" rx="8" fill="#232946"/><path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 14 0Z" fill="#4f8cff"/></svg>
+                    </span>
+                </div>
+                <h5 class="fw-bold">Verify your number</h5>
+                <div class="text-secondary mb-3">Enter the 6-digit code sent to your phone. This helps us ensure reports are from real residents.</div>
+            </div>
+            <div class="d-flex align-items-center justify-content-center mb-3" style="background:#232946;border-radius:0.75rem;padding:0.7rem 1rem;">
+                <span class="me-2" style="font-size:1.2rem;">🇮🇳</span>
+                <span id="verifyPhone" style="font-weight:600;letter-spacing:1px;">+91 98765 43210</span>
+                <a href="#" class="verify-link ms-3" id="changePhone">Change</a>
+            </div>
+            <form id="otpForm" autocomplete="off" class="mb-2">
+                <div class="d-flex justify-content-center mb-2">
+                    <input type="text" maxlength="1" class="otp-input" id="otp1" required>
+                    <input type="text" maxlength="1" class="otp-input" id="otp2" required>
+                    <input type="text" maxlength="1" class="otp-input" id="otp3" required>
+                    <input type="text" maxlength="1" class="otp-input" id="otp4" required>
+                    <input type="text" maxlength="1" class="otp-input" id="otp5" required>
+                    <input type="text" maxlength="1" class="otp-input" id="otp6" required>
+                </div>
+                <div class="text-secondary small mb-2">Code expires in <span id="timer">02:45</span></div>
+                <div class="text-end mb-3">
+                    <a href="#" class="verify-link" id="resendCode">Resend Code</a>
+                </div>
+                <button type="submit" class="btn verify-btn w-100 mb-2">Complete Verification &rarr;</button>
+            </form>
+            <div class="text-center mb-2">
+                <span class="text-secondary">Having trouble?</span> <a href="#" class="verify-link">Chat to our team</a>
+            </div>
+            <div class="text-center">
+                <a href="/signup.html" class="verify-link">&larr; Back to Login</a>
+            </div>
+        </div>
+        <div class="verify-footer">
+            By providing your phone number, you consent to receive SMS messages for verification and updates regarding your municipal complaints. Message and data rates may apply. Reply STOP to opt out.
+        </div>
+    </div>
+    <script>
+    // Autofocus and move to next OTP input
+    const otpInputs = Array.from(document.querySelectorAll('.otp-input'));
+    otpInputs.forEach((input, idx) => {
+        input.addEventListener('input', function() {
+            if (this.value.length === 1 && idx < otpInputs.length - 1) {
+                otpInputs[idx + 1].focus();
+            }
+        });
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !this.value && idx > 0) {
+                otpInputs[idx - 1].focus();
+            }
+        });
+    });
+    // Timer
+    let seconds = 165;
+    function updateTimer() {
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+        if (seconds > 0) seconds--;
+    }
+    setInterval(updateTimer, 1000);
+    // Load phone from localStorage
+    const user = JSON.parse(localStorage.getItem('civicvoice_user') || '{}');
+    if (user.phone) {
+        document.getElementById('verifyPhone').textContent = user.phone;
+    }
+    // OTP form
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Save verified flag
+        user.verified = true;
+        localStorage.setItem('civicvoice_user', JSON.stringify(user));
+        // Redirect to main app or dashboard
+        window.location.href = '/';
+    });
+    </script>
+</body>
+</html>
