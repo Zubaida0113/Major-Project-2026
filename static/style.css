@@ -253,3 +253,18 @@ body {
   text-align: center;
   color: #fff;
 }
+.waveform {
+  background: #2d3a5a;
+  border-radius: 0.5rem;
+  color: #4f8cff;
+  font-weight: bold;
+}
+.btn.rounded-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+.btn.rounded-circle i {
+  pointer-events: none;
+}
