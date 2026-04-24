@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,22 +18,40 @@
             margin: 3rem auto 0 auto;
             color: #fff;
         }
-        .form-label { color: #a3adc2; font-weight: 500; }
-        .form-control { background: #232946; color: #fff; border: 1.5px solid #2d3a5a; }
-        .form-control:focus { border-color: #4f8cff; box-shadow: none; }
-        .error-msg { color: #ff6b6b; font-size: 0.98rem; margin-top: 0.25rem; }
+
+        .form-label {
+            color: #a3adc2;
+            font-weight: 500;
+        }
+
+        .form-control {
+            background: #232946;
+            color: #fff;
+            border: 1.5px solid #2d3a5a;
+        }
+
+        .form-control:focus {
+            border-color: #4f8cff;
+            box-shadow: none;
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.98rem;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
+
 <body>
     <div class="container vh-100 d-flex flex-column align-items-center justify-content-center">
         <div class="signup-card w-100">
             <div class="d-flex align-items-center justify-content-center mb-4">
-  <span class="logo-img-wrapper me-2">
-    <img src="/assets/wave-sound.png" alt="CivicVoice Logo" width="40" height="40">
-  </span>
-  <h3 class="fw-bold mb-0">CivicVoice AI</h3>
-</div>
-
+                <span class="logo-img-wrapper me-2">
+                    <img src="/assets/wave-sound.png" alt="CivicVoice Logo" width="40" height="40">
+                </span>
+                <h3 class="fw-bold mb-0">CivicVoice AI</h3>
+            </div>
             <form id="signupForm" autocomplete="off" novalidate>
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
@@ -59,59 +78,60 @@
         </div>
     </div>
     <script>
-    // Client-side validation and local persistence
-    const form = document.getElementById('signupForm');
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    const addressInput = document.getElementById('address');
-    const phoneInput = document.getElementById('phone');
-    const nameError = document.getElementById('nameError');
-    const emailError = document.getElementById('emailError');
-    const addressError = document.getElementById('addressError');
-    const phoneError = document.getElementById('phoneError');
+        // Client-side validation and local persistence
+        const form = document.getElementById('signupForm');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const addressInput = document.getElementById('address');
+        const phoneInput = document.getElementById('phone');
+        const nameError = document.getElementById('nameError');
+        const emailError = document.getElementById('emailError');
+        const addressError = document.getElementById('addressError');
+        const phoneError = document.getElementById('phoneError');
 
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-    function validatePhone(phone) {
-        return /^[0-9\-\+\s()]{10,15}$/.test(phone);
-    }
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let valid = true;
-        nameError.textContent = '';
-        emailError.textContent = '';
-        addressError.textContent = '';
-        phoneError.textContent = '';
-        if (!nameInput.value.trim()) {
-            nameError.textContent = 'Please enter your full name.';
-            valid = false;
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
-        if (!emailInput.value.trim() || !validateEmail(emailInput.value.trim())) {
-            emailError.textContent = 'Please enter a valid email address.';
-            valid = false;
+        function validatePhone(phone) {
+            return /^[0-9\-\+\s()]{10,15}$/.test(phone);
         }
-        if (!addressInput.value.trim()) {
-            addressError.textContent = 'Please enter your home address.';
-            valid = false;
-        }
-        if (!phoneInput.value.trim() || !validatePhone(phoneInput.value.trim())) {
-            phoneError.textContent = 'Please enter a valid phone number.';
-            valid = false;
-        }
-        if (valid) {
-            // Save to localStorage as persistent JSON
-            const userData = {
-                name: nameInput.value.trim(),
-                email: emailInput.value.trim(),
-                address: addressInput.value.trim(),
-                phone: phoneInput.value.trim()
-            };
-            localStorage.setItem('civicvoice_user', JSON.stringify(userData));
-            // Redirect to verification page
-            window.location.href = '/verify.html';
-        }
-    });
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            let valid = true;
+            nameError.textContent = '';
+            emailError.textContent = '';
+            addressError.textContent = '';
+            phoneError.textContent = '';
+            if (!nameInput.value.trim()) {
+                nameError.textContent = 'Please enter your full name.';
+                valid = false;
+            }
+            if (!emailInput.value.trim() || !validateEmail(emailInput.value.trim())) {
+                emailError.textContent = 'Please enter a valid email address.';
+                valid = false;
+            }
+            if (!addressInput.value.trim()) {
+                addressError.textContent = 'Please enter your home address.';
+                valid = false;
+            }
+            if (!phoneInput.value.trim() || !validatePhone(phoneInput.value.trim())) {
+                phoneError.textContent = 'Please enter a valid phone number.';
+                valid = false;
+            }
+            if (valid) {
+                // Save to localStorage as persistent JSON
+                const userData = {
+                    name: nameInput.value.trim(),
+                    email: emailInput.value.trim(),
+                    address: addressInput.value.trim(),
+                    phone: phoneInput.value.trim()
+                };
+                localStorage.setItem('civicvoice_user', JSON.stringify(userData));
+                // Redirect to verification page
+                window.location.href = 'resident-dashboard.html';
+
+            }
+        });
     </script>
 </body>
 </html>

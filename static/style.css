@@ -210,3 +210,46 @@ body {
 [data-bs-theme="light"] .card {
     background: #fff;
 }
+.recording-card {
+  background: #232946;
+  border-radius: 1rem;
+  box-shadow: 0 4px 32px rgba(35,41,70,0.18);
+  color: #fff;
+}
+.recording-card h3 {
+  color: #fff;
+}
+.recording-card p {
+  color: #a3adc2;
+}
+#recordBtn {
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+}
+.sidebar {
+  background: #232946;
+  min-height: 100vh;
+  padding: 1.5rem;
+  color: #fff;
+}
+.sidebar a {
+  display: block;
+  color: #a3adc2;
+  text-decoration: none;
+  margin: 0.75rem 0;
+  font-weight: 500;
+}
+.sidebar a:hover {
+  color: #4f8cff;
+}
+.profile {
+  color: #a3adc2;
+}
+.stat-box {
+    font-size: 10px;
+  background: #2d3a5a;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  color: #fff;
+}
