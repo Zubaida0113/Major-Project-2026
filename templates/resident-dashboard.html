@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en" data-bs-theme="dark">
 
 <head>
@@ -183,23 +182,24 @@
                     </div><button id="submitBtn" class="btn btn-success mt-3" style="display:none;">Submit Complaint
                         🚀</button>
                 </div>
-<div id="summarySection" style="display:none;">
-                PASTE YOUR FULL SUMMARY UI HERE
+                <div id="summarySection" style="display:none;">
+                </div>
             </div>
+            <div id="processingOverlay" style="display:none;">
+                <div class="processing-box text-center">
+                    <div class="spinner-border text-light mb-3"></div>
+                    <h4>Processing Complaint...</h4>
+                    <p>AI Triage score is being generated.<br>Please wait.</p>
+                </div>
             </div>
-        <div id="processingOverlay" style="display:none;">
-    <div class="processing-box text-center">
-        <div class="spinner-border text-light mb-3"></div>
-        <h4>Processing Complaint...</h4>
-        <p>AI Triage score is being generated.<br>Please wait.</p>
-    </div>
-</div>   
         </div>
     </div>
 
-    
-    <script>
 
+    <script>
+window.onerror = function(msg, url, line) {
+    console.log("JS ERROR:", msg, "Line:", line);
+};
         // Personalize greeting using localStorage data from signup
         const userData = JSON.parse(localStorage.getItem('civicvoice_user'));
         if (userData && userData.name) {
@@ -241,6 +241,8 @@
         const activeRecording = document.getElementById('activeRecording');
         const timerEl = document.getElementById('timer');
         const recentActivitySection = document.getElementById('recentActivitySection');
+        const submitBtn = document.getElementById('submitBtn');
+        const summarySection = document.getElementById('summarySection');
 
         let timerInterval, seconds = 0;
         let isPaused = false;
@@ -249,6 +251,29 @@
             const m = String(Math.floor(sec / 60)).padStart(2, '0');
             const s = String(sec % 60).padStart(2, '0');
             return `${m}:${s}`;
+        }
+
+        const allSections = [dashboardCard, recordingCard, statsSection, recentActivitySection, activeRecording, summarySection];
+
+        function hideAllSections() {
+            allSections.forEach(section => {
+                if (section) {
+                    section.style.display = 'none';
+                }
+            });
+        }
+
+        function showSection(section, displayStyle = 'block') {
+            if (section) {
+                section.style.display = displayStyle;
+            }
+        }
+
+        function clearRecordingPreview() {
+            const existingPreview = activeRecording.querySelector('.recording-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
         }
 
 
@@ -275,11 +300,11 @@
                     localStorage.setItem('latestComplaintAudio', audioUrl);
 
                     const playbackDiv = document.createElement('div');
-                    playbackDiv.className = "mt-3";
+                    playbackDiv.className = "mt-3 recording-preview";
                     playbackDiv.innerHTML = `
-        <h5>Review Your Recording</h5>
-        <audio controls src="${audioUrl}"></audio>
-      `;
+                    <h5>Review Your Recording</h5>
+                    <audio controls src="${audioUrl}"></audio>
+                     `;
                     activeRecording.appendChild(playbackDiv);
                     // ✅ SHOW SUBMIT BUTTON
                     document.getElementById('submitBtn').style.display = 'inline-block';
@@ -297,11 +322,12 @@
 
         // Start button
         recordBtn.addEventListener('click', () => {
-            dashboardCard.style.display = 'none';
-            recordingCard.style.display = 'none';
-            statsSection.style.display = 'none';
-            recentActivitySection.style.display = 'none';
-            activeRecording.style.display = 'block';
+            hideAllSections();
+            clearRecordingPreview();
+            processingOverlay.style.display = 'none';
+            summarySection.innerHTML = '';
+            showSection(activeRecording, 'block');
+            submitBtn.style.display = 'none';
         });
         startBtn.addEventListener('click', () => {
             seconds = 0;
@@ -338,78 +364,71 @@
             console.log("Recording resumed.");
         });
         const processingOverlay = document.getElementById('processingOverlay');
-const summarySection = document.getElementById('summarySection');
+        document.getElementById('submitBtn').addEventListener('click', async () => {
 
-// submitBtn.addEventListener('click', () => {
+            if (!window.latestAudioBlob) {
+                alert("Please record first!");
+                return;
+            }
 
-//     // ❗ Only show loader AFTER recording exists
-//     if (!window.latestAudioBlob) {
-//         alert("Please record a complaint first!");
-//         return;
-//     }
+            hideAllSections();
+            processingOverlay.style.display = 'flex';
+             summarySection.style.display = 'block';
+            const formData = new FormData();
+            formData.append("audio", window.latestAudioBlob, "complaint.webm");
+            console.log("Sending audio for analysis...", formData.get("audio"));
 
-//     // ✅ SHOW CENTER POPUP
-//     processingOverlay.style.display = 'flex';
+            try {
+                const response = await fetch("http://127.0.0.1:5000/analyze-audio", {
+                    method: "POST",
+                    body: formData
+                });
 
-//     // ❌ hide recording UI
-//     activeRecording.style.display = 'none';
 
-//     // ⏳ simulate backend
-//     setTimeout(() => {
+                const data = await response.json();
 
-//         // hide loader
-//         processingOverlay.style.display = 'none';
+                processingOverlay.style.display = 'none';
 
-//         // show summary screen
-//         summarySection.style.display = 'block';
+                // ✅ SHOW SUMMARY
+                summarySection.style.display = 'block';
+                // ❌ HIDE EVERYTHING ELSE
+                dashboardCard.style.display = 'none';
+                recordingCard.style.display = 'none';
+                statsSection.style.display = 'none';
+                recentActivitySection.style.display = 'none';
+                activeRecording.style.display = 'none';
 
-//     }, 2500);
+                console.log("🔥 API DATA:", data);
 
-// });
-submitBtn.addEventListener('click', async () => {
+                // 🧠 Inject into summary UI
+                summarySection.innerHTML = `
+         <div class="dashboard-card">
+        <h3 class="fw-bold mb-3">🧾 Complaint Summary</h3>
 
-    if (!window.latestAudioBlob) {
-        alert("Please record first!");
-        return;
-    }
+        <p><strong>📝 Transcript:</strong><br>${data.transcript}</p>
 
-    processingOverlay.style.display = 'flex';
-     activeRecording.style.display = 'none';
+        <p><strong>📂 Category:</strong> ${data.category}</p>
 
-    const formData = new FormData();
-    formData.append("audio", window.latestAudioBlob, "complaint.webm");
-    console.log("Sending audio for analysis...", formData.get("audio"));
+        <p><strong>📍 Address:</strong> ${data.address}</p>
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/analyze-audio", {
-            method: "POST",
-            body: formData
+        <p><strong>⚡ Priority:</strong> ${data.priority}</p>
+
+        <hr>
+
+        <h5>📊 AI Scores</h5>
+        <p>Trust Score (S_T): <b>${data.S_T}</b></p>
+        <p>Priority Score (S_P): <b>${data.S_P}</b></p>
+        <p>Triage Score: <b>${data.S_Triage}</b></p>
+    </div>
+`;
+
+            } catch (err) {
+                processingOverlay.style.display = 'none';
+                alert("Error connecting to backend");
+                console.error(err);
+            }
+
         });
-
-        const data = await response.json();
-
-        processingOverlay.style.display = 'none';
-
-        // ✅ SHOW SUMMARY
-        summarySection.style.display = 'block';
- // ❌ HIDE EVERYTHING ELSE
-        dashboardCard.style.display = 'none';
-
-        // 🔥 UPDATE UI WITH REAL DATA
-        console.log(data);
-
-    } catch (err) {
-        processingOverlay.style.display = 'none';
-        alert("Error connecting to backend");
-        console.error(err);
-    }
-      summarySection.style.display = 'block';
-     dashboardCard.style.display = 'none';
-        recordingCard.style.display = 'none';
-        statsSection.style.display = 'none';
-        recentActivitySection.style.display = 'none';
-        activeRecording.style.display = 'none';
-});
 
     </script>
 
