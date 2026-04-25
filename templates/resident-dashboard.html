@@ -298,6 +298,25 @@ window.onerror = function(msg, url, line) {
             }
         }
 
+        function populateSummary(data) {
+            document.getElementById('summaryTranscript').textContent = data.transcript || 'Not available';
+            document.getElementById('summaryCategory').textContent = data.category || 'Unknown';
+            document.getElementById('summaryAddress').textContent = data.address || 'Not available';
+            document.getElementById('summaryPriority').textContent = data.priority || 'Normal';
+            document.getElementById('summaryST').textContent = data.S_T ?? '-';
+            document.getElementById('summarySP').textContent = data.S_P ?? '-';
+            document.getElementById('summarySTriage').textContent = data.S_Triage ?? '-';
+        }
+
+        function clearSummary() {
+            document.getElementById('summaryTranscript').textContent = '';
+            document.getElementById('summaryCategory').textContent = '';
+            document.getElementById('summaryAddress').textContent = '';
+            document.getElementById('summaryPriority').textContent = '';
+            document.getElementById('summaryST').textContent = '';
+            document.getElementById('summarySP').textContent = '';
+            document.getElementById('summarySTriage').textContent = '';
+        }
 
 
 
@@ -347,7 +366,7 @@ window.onerror = function(msg, url, line) {
             hideAllSections();
             clearRecordingPreview();
             processingOverlay.style.display = 'none';
-            summarySection.innerHTML = '';
+            clearSummary();
             showSection(activeRecording, 'block');
             submitBtn.style.display = 'none';
         });
@@ -386,6 +405,14 @@ window.onerror = function(msg, url, line) {
             console.log("Recording resumed.");
         });
         const processingOverlay = document.getElementById('processingOverlay');
+        const backToDashboard = document.getElementById('backToDashboard');
+        backToDashboard?.addEventListener('click', () => {
+            hideAllSections();
+            showSection(dashboardCard, 'block');
+            showSection(recordingCard, 'block');
+            showSection(statsSection, 'flex');
+            showSection(recentActivitySection, 'block');
+        });
         document.getElementById('submitBtn').addEventListener('click', async () => {
 
             if (!window.latestAudioBlob) {
@@ -395,7 +422,6 @@ window.onerror = function(msg, url, line) {
 
             hideAllSections();
             processingOverlay.style.display = 'flex';
-             summarySection.style.display = 'block';
             const formData = new FormData();
             formData.append("audio", window.latestAudioBlob, "complaint.webm");
             console.log("Sending audio for analysis...", formData.get("audio"));
@@ -410,39 +436,11 @@ window.onerror = function(msg, url, line) {
                 const data = await response.json();
 
                 processingOverlay.style.display = 'none';
-
-                // ✅ SHOW SUMMARY
-                summarySection.style.display = 'block';
-                // ❌ HIDE EVERYTHING ELSE
-                dashboardCard.style.display = 'none';
-                recordingCard.style.display = 'none';
-                statsSection.style.display = 'none';
-                recentActivitySection.style.display = 'none';
-                activeRecording.style.display = 'none';
+                populateSummary(data);
+                hideAllSections();
+                showSection(summarySection, 'block');
 
                 console.log("🔥 API DATA:", data);
-
-                // 🧠 Inject into summary UI
-                summarySection.innerHTML = `
-         <div class="dashboard-card">
-        <h3 class="fw-bold mb-3">🧾 Complaint Summary</h3>
-
-        <p><strong>📝 Transcript:</strong><br>${data.transcript}</p>
-
-        <p><strong>📂 Category:</strong> ${data.category}</p>
-
-        <p><strong>📍 Address:</strong> ${data.address}</p>
-
-        <p><strong>⚡ Priority:</strong> ${data.priority}</p>
-
-        <hr>
-
-        <h5>📊 AI Scores</h5>
-        <p>Trust Score (S_T): <b>${data.S_T}</b></p>
-        <p>Priority Score (S_P): <b>${data.S_P}</b></p>
-        <p>Triage Score: <b>${data.S_Triage}</b></p>
-    </div>
-`;
 
             } catch (err) {
                 processingOverlay.style.display = 'none';
