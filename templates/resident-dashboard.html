@@ -182,7 +182,29 @@
                     </div><button id="submitBtn" class="btn btn-success mt-3" style="display:none;">Submit Complaint
                         🚀</button>
                 </div>
-                <div id="summarySection" style="display:none;">
+                <div id="summarySection" class="dashboard-card" style="display:none;">
+                    <h3 class="fw-bold mb-3">🧾 Complaint Summary</h3>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>📝 Transcript:</strong></p>
+                        <p id="summaryTranscript" class="text-muted"></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>📂 Category:</strong> <span id="summaryCategory"></span></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>📍 Address:</strong> <span id="summaryAddress"></span></p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>⚡ Priority:</strong> <span id="summaryPriority"></span></p>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h5>📊 AI Scores</h5>
+                        <p class="mb-1">Trust Score (S_T): <span id="summaryST"></span></p>
+                        <p class="mb-1">Priority Score (S_P): <span id="summarySP"></span></p>
+                        <p class="mb-1">Triage Score: <span id="summarySTriage"></span></p>
+                    </div>
+                    <button id="backToDashboard" class="btn btn-outline-light mt-3">Back to Dashboard</button>
                 </div>
             </div>
             <div id="processingOverlay" style="display:none;">
