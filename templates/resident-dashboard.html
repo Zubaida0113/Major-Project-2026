@@ -182,6 +182,13 @@
                     </div><button id="submitBtn" class="btn btn-success mt-3" style="display:none;">Submit Complaint
                         🚀</button>
                 </div>
+                <div id="processingOverlay" style="display:none;">
+                <div class="processing-box text-center">
+                    <div class="spinner-border text-light mb-3"></div>
+                    <h4>Processing Complaint...</h4>
+                    <p>AI Triage score is being generated.<br>Please wait.</p>
+                </div>
+            </div>
                 <div id="summarySection" class="dashboard-card" style="display:none;">
                     <h3 class="fw-bold mb-3">🧾 Complaint Summary</h3>
                     <div class="mb-3">
@@ -207,18 +214,12 @@
                     <button id="backToDashboard" class="btn btn-outline-light mt-3">Back to Dashboard</button>
                 </div>
             </div>
-            <div id="processingOverlay" style="display:none;">
-                <div class="processing-box text-center">
-                    <div class="spinner-border text-light mb-3"></div>
-                    <h4>Processing Complaint...</h4>
-                    <p>AI Triage score is being generated.<br>Please wait.</p>
-                </div>
-            </div>
+            
         </div>
     </div>
 
 
-    <script>
+    <!-- <script>
 window.onerror = function(msg, url, line) {
     console.log("JS ERROR:", msg, "Line:", line);
 };
@@ -265,6 +266,7 @@ window.onerror = function(msg, url, line) {
         const recentActivitySection = document.getElementById('recentActivitySection');
         const submitBtn = document.getElementById('submitBtn');
         const summarySection = document.getElementById('summarySection');
+        const processingOverlay = document.getElementById('processingOverlay');
 
         let timerInterval, seconds = 0;
         let isPaused = false;
@@ -275,7 +277,7 @@ window.onerror = function(msg, url, line) {
             return `${m}:${s}`;
         }
 
-        const allSections = [dashboardCard, recordingCard, statsSection, recentActivitySection, activeRecording, summarySection];
+        const allSections = [dashboardCard, recordingCard, statsSection, recentActivitySection, activeRecording, summarySection, processingOverlay];
 
         function hideAllSections() {
             allSections.forEach(section => {
@@ -288,6 +290,15 @@ window.onerror = function(msg, url, line) {
         function showSection(section, displayStyle = 'block') {
             if (section) {
                 section.style.display = displayStyle;
+                section.style.visibility = 'visible';
+            }
+        }
+
+        function showOnlySection(section) {
+            hideAllSections();
+            if (section) {
+                section.style.display = 'block';
+                section.style.visibility = 'visible';
             }
         }
 
@@ -437,8 +448,7 @@ window.onerror = function(msg, url, line) {
 
                 processingOverlay.style.display = 'none';
                 populateSummary(data);
-                hideAllSections();
-                showSection(summarySection, 'block');
+                showOnlySection(summarySection);
 
                 console.log("🔥 API DATA:", data);
 
@@ -450,8 +460,222 @@ window.onerror = function(msg, url, line) {
 
         });
 
-    </script>
+    </script> -->
 
+    <script>
+window.onerror = function (msg, url, line) {
+    console.log("JS ERROR:", msg, "Line:", line);
+};
+
+/* ---------------- USER DATA ---------------- */
+const userData = JSON.parse(localStorage.getItem('civicvoice_user'));
+
+if (userData) {
+    if (userData.name) {
+        document.getElementById('welcomeMessage').textContent =
+            `Welcome back, ${userData.name}`;
+        document.getElementById('residentName').textContent = userData.name;
+    }
+
+    if (userData.phone) {
+        document.getElementById('residentPhone').textContent = userData.phone;
+    }
+}
+
+/* ---------------- STATS ---------------- */
+let stats = {
+    totalFiled: 0,
+    openIssues: 0,
+    resolvedIssues: 0,
+    recentActivity: []
+};
+
+function updateDashboard() {
+    document.getElementById('totalFiled').textContent = stats.totalFiled;
+    document.getElementById('openIssues').textContent = stats.openIssues;
+    document.getElementById('resolvedIssues').textContent = stats.resolvedIssues;
+
+    const activityList = document.getElementById('recentActivityList');
+    activityList.innerHTML = stats.recentActivity.length
+        ? stats.recentActivity.map(i => `<div class="recent-item">${i}</div>`).join('')
+        : '<div class="recent-item">NULL</div>';
+}
+
+updateDashboard();
+
+/* ---------------- ELEMENTS ---------------- */
+const dashboardCard = document.getElementById('dashboardCard');
+const recordingCard = document.getElementById('recordingCard');
+const statsSection = document.getElementById('statsSection');
+const recentActivitySection = document.getElementById('recentActivitySection');
+const activeRecording = document.getElementById('activeRecording');
+const summarySection = document.getElementById('summarySection');
+const processingOverlay = document.getElementById('processingOverlay');
+
+const recordBtn = document.getElementById('recordBtn');
+const startBtn = document.getElementById('startBtn');
+const submitBtn = document.getElementById('submitBtn');
+const backToDashboard = document.getElementById('backToDashboard');
+const timerEl = document.getElementById('timer');
+
+/* ---------------- STATE CONTROL ---------------- */
+function hideAllSections() {
+    [
+        dashboardCard,
+        recordingCard,
+        statsSection,
+        recentActivitySection,
+        activeRecording,
+        summarySection
+    ].forEach(el => {
+        if (el) el.style.display = "none";
+    });
+}
+
+function show(el, mode = "block") {
+    if (el) el.style.display = mode;
+}
+
+/* ---------------- SUMMARY ---------------- */
+function populateSummary(data) {
+    document.getElementById('summaryTranscript').textContent = data.transcript || 'Not available';
+    document.getElementById('summaryCategory').textContent = data.category || 'Unknown';
+    document.getElementById('summaryAddress').textContent = data.address || 'Not available';
+    document.getElementById('summaryPriority').textContent = data.priority || 'Normal';
+    document.getElementById('summaryST').textContent = data.S_T ?? '-';
+    document.getElementById('summarySP').textContent = data.S_P ?? '-';
+    document.getElementById('summarySTriage').textContent = data.S_Triage ?? '-';
+}
+
+/* ---------------- RECORDING ---------------- */
+let mediaRecorder;
+let audioChunks = [];
+let timer;
+let seconds = 0;
+let isPaused = false;
+
+function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    return `${m}:${s}`;
+}
+
+async function startRecording() {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+    mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        window.latestAudioBlob = audioBlob;
+
+        const url = URL.createObjectURL(audioBlob);
+
+        const preview = document.createElement('div');
+        preview.className = "mt-3";
+        preview.innerHTML = `
+            <h5>Recording Preview</h5>
+            <audio controls src="${url}"></audio>
+        `;
+
+        activeRecording.appendChild(preview);
+        submitBtn.style.display = "inline-block";
+    };
+
+    mediaRecorder.start();
+}
+
+/* ---------------- EVENTS ---------------- */
+
+// Open recording UI
+recordBtn.addEventListener('click', () => {
+    hideAllSections();
+    show(activeRecording, "block");
+    submitBtn.style.display = "none";
+    processingOverlay.style.display = "none";
+});
+
+// Start recording
+startBtn.addEventListener('click', () => {
+    seconds = 0;
+    isPaused = false;
+    timerEl.textContent = "00:00";
+
+    clearInterval(timer);
+    timer = setInterval(() => {
+        if (!isPaused) {
+            seconds++;
+            timerEl.textContent = formatTime(seconds);
+        }
+    }, 1000);
+
+    startRecording();
+});
+
+// Stop recording
+document.getElementById('stopBtn').addEventListener('click', () => {
+    clearInterval(timer);
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+    }
+});
+
+// Pause
+document.getElementById('pauseBtn').addEventListener('click', () => {
+    isPaused = true;
+});
+
+// Resume
+document.getElementById('resumeBtn').addEventListener('click', () => {
+    isPaused = false;
+});
+
+/* ---------------- SUBMIT FLOW ---------------- */
+submitBtn.addEventListener('click', async () => {
+
+    hideAllSections();
+    processingOverlay.style.display = 'flex';
+
+    const formData = new FormData();
+    formData.append("audio", window.latestAudioBlob, "complaint.webm");
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/analyze-audio", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        processingOverlay.style.display = "none";
+
+        hideAllSections();
+        show(summarySection, "block");
+
+        populateSummary(data);
+
+    } catch (err) {
+        processingOverlay.style.display = "none";
+        alert("Backend connection error");
+        console.error(err);
+    }
+});
+
+/* ---------------- BACK BUTTON ---------------- */
+backToDashboard?.addEventListener('click', () => {
+    processingOverlay.style.display = "none";
+    hideAllSections();
+
+    show(dashboardCard);
+    show(recordingCard);
+    show(statsSection, "flex");
+    show(recentActivitySection);
+});
+
+</script>
 </body>
 
 </html>
