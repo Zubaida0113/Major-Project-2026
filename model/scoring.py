@@ -102,6 +102,10 @@ def classify_action(S_T, S_P, S_Triage):
         return "High Priority"
     elif S_Triage >= 0.20:
         return "Normal Priority"
+    elif S_Triage>=0.15:
+        return "Low Priority"
+    elif S_Triage<0.15:
+        return "Invalid Imput. Please record again"
 
     if S_T < 0.4:
         return "Flagged for Verification"
