@@ -374,6 +374,7 @@ submitBtn.addEventListener('click', async () => {
     }
 
     processingOverlay.style.display = 'flex';
+     activeRecording.style.display = 'none';
 
     const formData = new FormData();
     formData.append("audio", window.latestAudioBlob, "complaint.webm");
@@ -391,6 +392,8 @@ submitBtn.addEventListener('click', async () => {
 
         // ✅ SHOW SUMMARY
         summarySection.style.display = 'block';
+ // ❌ HIDE EVERYTHING ELSE
+        dashboardCard.style.display = 'none';
 
         // 🔥 UPDATE UI WITH REAL DATA
         console.log(data);
@@ -400,6 +403,12 @@ submitBtn.addEventListener('click', async () => {
         alert("Error connecting to backend");
         console.error(err);
     }
+      summarySection.style.display = 'block';
+     dashboardCard.style.display = 'none';
+        recordingCard.style.display = 'none';
+        statsSection.style.display = 'none';
+        recentActivitySection.style.display = 'none';
+        activeRecording.style.display = 'none';
 });
 
     </script>
